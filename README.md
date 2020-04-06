@@ -1,2 +1,4 @@
-# SP_L3Unix
-School Project L3 Unix
+# School Project L3 UNIX and System programming 
+## SP_L3Unix
+### Paris Dauphine University
+Mehdi EL AYADI & Axel Deleron
