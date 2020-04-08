@@ -11,6 +11,10 @@
 char* msg1 ="bonjour !";
 char* msg2 ="au revoir";
 
+char *articleList[] = {"body","brassiere","pyjama"};
+char *vendeurList[] = {"Pierre","Paul","Jacques"};
+
+
 void parent_read(int p[]);
 void child_write(int p[]);
 
@@ -19,7 +23,7 @@ int main()
 	int p[2];
 	printf("Père. Début.\n");
 	printf("Père. Création d'un tube.\n");
-	if (pipe(p) < 0) 
+	if (pipe(p) < 0)
 	{
 		printf("Père. Tubes non supportés. Fin\n");
 		exit(1);
@@ -31,7 +35,7 @@ int main()
 	 * 					exit(2);
 	 * 						}*/
 	printf("Père. Création Fils.\n");
-	switch (fork()) 
+	switch (fork())
 	{
 		case -1:
 			printf("Fork impossible.\n");
@@ -60,7 +64,7 @@ void parent_read(int p[])
 		nread = read(p[0], buf, MSGSIZE);
 		switch (nread) {
 			case -1:
-				if (errno == EAGAIN) 
+				if (errno == EAGAIN)
 				{
 					printf("Tube vide.\n");
 					sleep(1);
@@ -88,7 +92,7 @@ void child_write(int p[])
 	close(p[0]);
 
 	printf("Fils. Boucle d'écriture.\n");
-	for (int i = 0; i < 3; i++) 
+	for (int i = 0; i < 3; i++)
 	{
 		printf(" Fils. écriture tube. ");
 		write(p[1], msg1, MSGSIZE);
@@ -102,4 +106,3 @@ void child_write(int p[])
 	printf("Fils. Fin.\n");
 	exit(0);
 }
-
