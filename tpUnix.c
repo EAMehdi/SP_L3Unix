@@ -26,20 +26,13 @@ int main() {
 
 	strcpy(body.nomArt, "Body");
 	body.prixArt= 19.95;
-
 	strcpy(brassiere.nomArt, "Brassiere");
 	brassiere.prixArt= 14.95;
-
 	strcpy(pyjama.nomArt, "Pyjama");
 	pyjama.prixArt= 24.95;
 
 	struct Articles artListe[3] = {body, brassiere, pyjama};
 	struct Articles articleSelected;
-
-
-	char *vendeurList[] = {"Pierre","Paul","Jacques"}; // 0-1, 2-3,4-5
-	char *clientList[] = {"Chloe","Elise","Lea"}; // 6-7, 8-9, 10-11
-	char *caissiereList[] = {"Lilou","Laura","Nadia"}; // 12-13, 14-15, 15-17
 
 	char article[20];
 	char vendeur[20];
@@ -60,20 +53,16 @@ int main() {
 	char pipe7writemessage[50] = "'Quel est le total a payer ?'";
 	char pipe8writemessage[50] = "'Je veux bien un sac'";
 	char readmessage[50];
+
 	struct Articles readArticle;
 	struct Articles panier;
 	struct Sacs readSacs;
 
-	int varTest = 99;
-	int varTest2;
-
 	startMenu(&article, &vendeur, &client, &caissiere);
-	printf("Article dans main : %s\n",article);
-	printf("Article dans main : %s\n",vendeur);
-	printf("Article dans main : %s\n",client);
-	printf("Article dans main : %s\n",caissiere);
-	strcat(pipe4writemessage,article);
-	strcat(pipe4writemessage,"'");
+	printf("Vendeur : %s\n",vendeur);
+	printf("Client : %s\n",client);
+	printf("Caissiere : %s\n",caissiere);
+
 
 	for(i=0; i<3; i++){
 		if(!strcmp(artListe[i].nomArt,article)){
@@ -81,7 +70,9 @@ int main() {
 			articleSelected.prixArt=artListe[i].prixArt;
 		}
 	}
-	printf("L'article selectionné:  %s  Prix: %.2f $ \n",articleSelected.nomArt, articleSelected.prixArt);
+	strcat(pipe4writemessage,articleSelected.nomArt);
+	strcat(pipe4writemessage,"'");
+	printf("\nL'article selectionné:  %s  \nPrix: %.2f $ \n",articleSelected.nomArt, articleSelected.prixArt);
 
 	returnstatus1 = pipe(pipefds1);
 
