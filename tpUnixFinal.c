@@ -1,25 +1,31 @@
-// CPP code to create three child 
-// process of a parent 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <unistd.h> 
+// Tp Unix/Prog. Systeme  - L3 Informatique - Université Paris Dauphine
+// Mehdi EL AYADI & Axel DELERON
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include<string.h>
 #include <signal.h>
 
+// Menu avec choix des acteurs et de l'article
 void startMenu();
 
+// Structure d'un article(nom,prix)
 struct Articles {
     char nomArt[20];
     float prixArt;
 };
 
+// Structure d'un Sac (propriétaire,article dans le sac)
 struct Sacs{
     char owner[50];
     struct Articles monArticle;
 };
 
-int main() 
-{ 
+// Fonction principale Main
+int main()
+{
+
+    // Variables autour de la structure Articles
     struct Articles body;
     struct Articles brassiere;
     struct Articles pyjama;
@@ -38,18 +44,22 @@ int main()
     struct Articles artListe[3] = {body, brassiere, pyjama};
     struct Articles articleSelected;
 
+    // Chaine de caractere, acteurs et article
     char article[20];
     char vendeur[20];
     char client[20];
     char caissiere[20];
 
-    int pid1, pid2, pid3; 
+    // Variable des tubes
+    int pid1, pid2, pid3;
     int pipefds1[2], pipefds2[2];
     int pipefds3[2], pipefds4[2];
     int pipefds5[2], pipefds6[2];
     int returnstatus1, returnstatus2;
     int returnstatus3, returnstatus4;
     int returnstatus5, returnstatus6;
+
+    // Messages du scénario
     char msg1[20] = "'Bonjour'";
     char msg2[20] = "'Bien le bonjour'";
     char msg3[20] = "'Que voulez-vous ?'";
@@ -59,19 +69,24 @@ int main()
     char msg7[50] = "'Quel est le total a payer ?'";
     char msg8[50] = "'Je veux bien un sac'";
     char msgValid[50] = "Fin discussion avec le vendeur";
+
+    // Buffer pour les chaines de caractères
     char readmessage[50];
     char readmessage2[50];
 
+    // Buffer pour les structures Articles et Sacs
     struct Articles readArticle;
     struct Articles readArticle2;
     struct Articles panier;
     struct Sacs readSac;
     struct Sacs readSac2;
 
+    // Lancement du Menu
     startMenu(&article, &vendeur, &client, &caissiere);
     strcat(msg4,article);
-    strcat(msg4,"'");
+    strcat(msg4,"'"); // Adaptation du message 4
 
+    // Articles sélectionné
     for(i=0; i<3; i++){
         if(!strcmp(artListe[i].nomArt,article)){
             strcpy(articleSelected.nomArt,artListe[i].nomArt);
@@ -81,12 +96,15 @@ int main()
     printf("L'article selectionné:  %s  Prix: %.2f $ \n",articleSelected.nomArt, articleSelected.prixArt);
 
 
+    // Création du tube au fd 1
     returnstatus1 = pipe(pipefds1);
 
     if (returnstatus1 == -1) {
         printf("Unable to create pipe 1 \n");
         return 1;
     }
+
+    // Création du tube au fd 2
     returnstatus2 = pipe(pipefds2);
 
     if (returnstatus2 == -1) {
@@ -94,12 +112,14 @@ int main()
         return 1;
     }
 
+    // Création du tube au fd 3
     returnstatus3 = pipe(pipefds3);
 
     if (returnstatus3 == -1) {
         printf("Unable to create pipe 3 \n");
         return 1;
     }
+    // Création du tube au fd 4
     returnstatus4 = pipe(pipefds4);
 
     if (returnstatus4 == -1) {
@@ -107,12 +127,15 @@ int main()
         return 1;
     }
 
+    // Création du tube au fd 5
     returnstatus5 = pipe(pipefds5);
 
     if (returnstatus1 == -1) {
         printf("Unable to create pipe 5 \n");
         return 1;
     }
+
+    // Création du tube au fd 6
     returnstatus6 = pipe(pipefds6);
 
     if (returnstatus6 == -1) {
@@ -120,13 +143,13 @@ int main()
         return 1;
     }
 
-    pid1 = fork(); 
+    // Premier Fork
+    pid1 = fork();
 
-    // If fork() returns zero then it 
-    // means it is child process. 
-    if (pid1 == 0) { //Client
-        close(pipefds1[1]); // Close the unwanted pipe1 write side
-        close(pipefds2[0]); // Close the unwanted pipe2 read side
+
+    if (pid1 == 0) { // Client (pid == 0 <=> fils)
+        close(pipefds1[1]); // Close pipe1 en écriture
+        close(pipefds2[0]); // Close pipe2 en lecture
 
         // Reception du message du Vendeur - Bonjour
         read(pipefds1[0], readmessage2, sizeof(readmessage2));
@@ -183,7 +206,7 @@ int main()
 
         // Reception du bon encaissement du paiement
         read(pipefds1[0], readmessage2, sizeof(readmessage2));
-        printf("In Client: Reading from pipe 1 – %s a encaisse %s $ a %s\n", caissiere, readmessage2,client);
+        printf("In Client: Reading from pipe 1 – %s a encaisse %s $ de %s\n", caissiere, readmessage2,client);
 
         // Le Client demande un sac
         printf("In Client: Writing to pipe 2  – %s dit %s a %s\n", client, msg8, caissiere);
@@ -191,7 +214,7 @@ int main()
 
         // Reception du sac
         read(pipefds1[0], &readSac2, sizeof(readSac2));
-        printf("In Client: Reading from pipe 1 – %s a récupéré le sac\n", client);
+        printf("In Client: Reading from pipe 1 – %s a récupéré le sac\n", readSac2.owner);
 
         // Le Client dit merci et au revoir
         printf("In Client: Writing to pipe 2 – %s dit %s a %s\n", client, msg6, caissiere);
@@ -199,16 +222,16 @@ int main()
 
         // Reception des remerciements du caissier
         read(pipefds1[0], readmessage2, sizeof(readmessage2));
-        printf("In Client: Reading from pipe 1 – %s a dit %s a %s\n", caissiere, readmessage2 ,client);
+        printf("In Client: Reading from pipe 1 – %s a dit aussi %s a %s\n", caissiere, readmessage2 ,client);
 
 
-    } 
+    }
 
-    else { 
+    else {
         pid2 = fork();
         if (pid2 == 0) { //Vendeur
-            close(pipefds3[1]); // Close the unwanted pipe3 write side
-            close(pipefds4[0]); // Close the unwanted pipe4 read side
+            close(pipefds3[1]); // Close pipe3 en écriture
+            close(pipefds4[0]); // Close pipe4 en lecture
 
             // Vendeur dit Bonjour au client
             printf("In Vendeur: Writing to pipe 4 – %s dit %s a %s\n", vendeur, msg1, client);
@@ -238,12 +261,17 @@ int main()
             printf("In Vendeur: Writing to pipe 4 – %s\n", msgValid);
             write(pipefds4[1], msgValid, sizeof(msgValid));
 
-        } 
-        else { 
+            /////////////////
+            //     END    //
+            ////////////////
+
+
+        }
+        else {
             pid3 = fork();
             if (pid3 == 0) { //Caissiere
-                close(pipefds5[1]); // Close the unwanted pipe5 write side
-                close(pipefds6[0]); // Close the unwanted pipe6 read side
+                close(pipefds5[1]); // Close pipe5 en écriture
+                close(pipefds6[0]); // Close pipe6 en lecture
 
             // Reception l'article
             read(pipefds5[0], &readArticle2, sizeof(readArticle2));
@@ -252,7 +280,7 @@ int main()
             // La caissiere touche l'article
             printf("In Caissiere: Writing to pipe 6 – %s touche %s\n",caissiere, readArticle2.nomArt);
             write(pipefds6[1], &readArticle2, sizeof(readArticle2));
-
+            //
             // Reception de la demande du total a payer
             read(pipefds5[0], readmessage2, sizeof(readmessage2));
             printf("In Caissiere: Reading from pipe 5 – %s a dit %s a %s\n", client, readmessage2, caissiere);
@@ -291,16 +319,14 @@ int main()
             printf("In Caissiere: Writing to pipe 6 – %s dit %s a %s\n",caissiere,msg6 ,client);
             write(pipefds6[1], msg6, sizeof(msg6));
 
-
-
-            } 
+            }
             else { //Parent
-                close(pipefds1[0]); // Close the unwanted pipe1 read side
-                close(pipefds2[1]); // Close the unwanted pipe2 write side
-                close(pipefds3[0]); // Close the unwanted pipe3 read side
-                close(pipefds4[1]); // Close the unwanted pipe4 write side
-                close(pipefds5[0]); // Close the unwanted pipe5 read side
-                close(pipefds6[1]); // Close the unwanted pipe6 write side
+                close(pipefds1[0]); // Close pipe1 en lecture
+                close(pipefds2[1]); // Close pipe2 en écriture
+                close(pipefds3[0]); // Close pipe3 en lecture
+                close(pipefds4[1]); // Close pipe4 en écriture
+                close(pipefds5[0]); // Close pipe5 en lecture
+                close(pipefds6[1]); // Close pipe6 en écriture
 
                 read(pipefds4[0], readmessage, sizeof(readmessage));
                 write(pipefds1[1], readmessage, sizeof(readmessage));
@@ -323,42 +349,52 @@ int main()
                 read(pipefds4[0], readmessage, sizeof(readmessage));
                 write(pipefds1[1], readmessage, sizeof(readmessage));
 
-
+                // Client tend article a la caissiere
                 read(pipefds2[0], &readArticle, sizeof(readArticle));
                 write(pipefds5[1], &readArticle, sizeof(readArticle));
 
+                //Caissiere touche article
                 read(pipefds6[0], &readArticle, sizeof(readArticle));
                 write(pipefds1[1], &readArticle, sizeof(readArticle));
 
+                // Client demande prix total
                 read(pipefds2[0], readmessage, sizeof(readmessage));
                 write(pipefds5[1], readmessage, sizeof(readmessage));
 
+                // Caissiere annonce prix
                 read(pipefds6[0], readmessage, sizeof(readmessage));
                 write(pipefds1[1], readmessage, sizeof(readmessage));
 
+                //Annonce du prix à payer
                 read(pipefds2[0], &readArticle, sizeof(readArticle));
                 write(pipefds5[1], &readArticle, sizeof(readArticle));
 
+                // Caissiere encaisse client
                 read(pipefds6[0], readmessage, sizeof(readmessage));
                 write(pipefds1[1], readmessage, sizeof(readmessage));
 
-                read(pipefds2[0], &readArticle, sizeof(readArticle));
-                write(pipefds5[1], &readArticle, sizeof(readArticle));
+                // Client demande un sac
+                read(pipefds2[0], readmessage, sizeof(readmessage));
+                write(pipefds5[1], readmessage, sizeof(readmessage));
 
+                // Reception du sac
                 read(pipefds6[0], &readSac, sizeof(readSac));
                 write(pipefds1[1], &readSac, sizeof(readSac));
 
+                // Client dit merci et au revoir
                 read(pipefds2[0], readmessage, sizeof(readmessage));
                 write(pipefds5[1], readmessage, sizeof(readmessage));
 
+                // Caissiere dit merci et au revoir
                 read(pipefds6[0], readmessage, sizeof(readmessage));
                 write(pipefds1[1], readmessage, sizeof(readmessage));
-            } 
-        }
-    } 
 
-    return 0; 
-} 
+            }
+        }
+    }
+
+    return 0;
+}
 
 
 void startMenu(char *article, char *vendeur, char *client, char *caissiere)
