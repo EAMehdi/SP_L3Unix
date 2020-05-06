@@ -8,6 +8,6 @@
 
 Mehdi EL AYADI & Axel Deleron
 
-#### Write in C
+#### Written in C
 
 The goal is to create a dialogue (send messages) between two child process through the parent using `fork()` & **pipes**.
